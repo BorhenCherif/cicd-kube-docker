@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-                registry = "borhencherif/TEST-VUE-PP"
+                registry = "borhencherif/cicd"
                 registryCredential = "dockerhub"
 
     }
