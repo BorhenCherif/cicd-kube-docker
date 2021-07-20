@@ -9,12 +9,6 @@ pipeline {
     }
 
     stages {
-
-             stage ('checkout') {
-                  steps {
-                      git  "https://github.com/BorhenCherif/cicd-kube-docker.git"
-                }
-             }
        
          stage ('build')  {
 
