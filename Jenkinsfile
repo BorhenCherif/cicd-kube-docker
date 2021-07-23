@@ -10,56 +10,41 @@ pipeline {
 
     stages {
        
-         stage ('build')  {
-
+        stage('BUILD'){
             steps {
-              sh " mvn clean install"
-                    }
+                sh 'mvn clean install -DskipTests'
             }
-            
-
- 
-        stage ('test')  {
-            steps {
-                
-          sh " mvn test"
+            post {
+                success {
+                    echo 'Now Archiving...'
+                    archiveArtifacts artifacts: '**/target/*.war'
                 }
-
             }
-
-        stage('build image'){
-         steps{
-         script{
-
-              dockerImage = docker.build registry + ":V$BUILD_NUMBER"
-
-
-         }
-
-         }
         }
-          stage ('upload image'){
-          steps{
-              script{
-             
-                 docker.withRegistry('',registryCredential) {
 
-                     dockerImage.push("V$BUILD_NUMBER")
-                     dockerImage.push('latest')
-                 } 
+        stage('UNIT TEST'){
+            steps {
+                sh 'mvn test'
+            }
+        }
 
-              }
-          }
+        stage('INTEGRATION TEST'){
+            steps {
+                sh 'mvn verify -DskipUnitTests'
+            }
+        }
+        
+         stage ('CODE ANALYSIS WITH CHECKSTYLE'){
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+            post {
+                success {
+                    echo 'Generated Analysis Result'
+                }
+            }
+        }
 
-
-          }
-
-
-          stage ('remove unused docker image'){
-              steps{
-                  sh "docker rmi $registry:V$BUILD_NUMBER"
-              }
-          }
         }
  
  }
